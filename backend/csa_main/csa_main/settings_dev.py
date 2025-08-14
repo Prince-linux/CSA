@@ -1,8 +1,7 @@
 from .settings import *  # noqa
 
 
-# SECRET_KEY = "django-insecure-c-#d#c9q(n8*26b!d^tjml(-kvosxg-!%hl5!%3urejan&on-b"
-SECRET_KEY = "django-insecure-klb&v7aru=kt^w0jl+c9-op^qeeo3((5+z^8_7g8=vet@%^%qi"
+SECRET_KEY="django-insecure-b38^&s704#(2&rvtfzj%3ih#ly5@2hy^lptyce@=(=vq^^23)r"
 
 
 ALLOWED_HOSTS.append("*")  # noqa
