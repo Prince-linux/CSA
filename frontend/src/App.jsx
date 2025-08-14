@@ -9,7 +9,7 @@ import RegistrationFailed from './pages/RegistrationFailed';
 function App() {
   return (
     <Routes>
-      <Route index element={<Register />} /> {/* For root path */}
+      <Route path='/' element={<Register />} /> {/* For root path */}
       <Route path="/members" element={<MembersList />} />
       <Route path="/payment-callback" element={<PaymentCallback />} />
       <Route path="/registration-success" element={<RegistrationSuccess />} />
