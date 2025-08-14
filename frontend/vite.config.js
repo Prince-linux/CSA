@@ -1,19 +1,3 @@
-// import { defineConfig } from 'vite'
-// import react from '@vitejs/plugin-react'
-// import tailwindcss from '@tailwindcss/vite'
-
-
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react(),tailwindcss(),
-//   ],
-//   build: {
-//     target: 'esnext'
-//   }
-//   // base: '/gcap/usata/',
-// })
-
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -21,14 +5,12 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    target: 'esnext',
-    outDir: 'dist',
-    emptyOutDir: true
+    outDir: 'dist', // Ensure this matches Vercel’s output dir
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
       '@': '/src'
     }
-  },
-  logLevel: 'info'
+  }
 })
