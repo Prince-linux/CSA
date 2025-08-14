@@ -1,17 +1,17 @@
 // const urlBase = "/gcap/usata/";
-const urlBase = "/";
+// const urlBase = "/";
 
-export const routes = [
-    {
-        id: 0,
-        path: `${urlBase}`,
-        element: "Register Page",
-    },
-    {
-        id: 1,
-        path: `${urlBase}#about`,
-        element: "Member List Page",
-    },
+// export const routes = [
+//     {
+//         id: 0,
+//         path: `${urlBase}api/register/`,
+//         element: "Registration Fetcher",
+//     },
+//     {
+//         id: 1,
+//         path: `${urlBase}api/register`,
+//         element: "Member List Page",
+//     },
     // {
     //     id: 0,
     //     path: `${urlBase}`,
@@ -67,4 +67,20 @@ export const routes = [
     //     path: `${urlBase}team/`,
     //     element: "Team Redirect",
     // },
+// ];
+
+
+const urlBase = "/";
+
+export const routes = [
+    {
+        id: 0,
+        path: `${urlBase}register`,
+        element: <Register />, // Make sure to import your Register component
+    },
+    {
+        id: 1,
+        path: `${urlBase}members`,
+        element: <MemberList />, // Make sure to import your MemberList component
+    },
 ];
