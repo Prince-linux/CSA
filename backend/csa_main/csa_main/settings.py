@@ -54,7 +54,7 @@ DATABASES = {
 DEBUG = True
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["csacademy.pythonanywhere.com", "https://usata.co/",]
+ALLOWED_HOSTS = ["csacademy.pythonanywhere.com", "http://localhost:5173"]
 
 
 # Application definition
@@ -89,7 +89,6 @@ ROOT_URLCONF = "csa_main.urls"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite frontend
-    # "https://birthday-inn.vercel.app",  # No trailing slash
     "https://csacademy.pythonanywhere.com",  # Added scheme
 ]
 
@@ -100,15 +99,14 @@ CORS_ORIGIN_ALLOW_ALL = True
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # "DIRS": [BASE_DIR / 'core/templates'],
-        # BASE_DIR.parent / "frontend" / "dist",
-         "DIRS": [
+        "DIRS": [
             BASE_DIR / "templates",
             BASE_DIR.parent / "frontend" / "dist",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -163,11 +161,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
-STATICFILES_DIRS = [
-    BASE_DIR.parent / "frontend" / "dist" / "static",
-]
-STATIC_ROOT = BASE_DIR.parent / "static"
-# STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static")
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static")
 #MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # for the compiled assets from the frontend
@@ -175,10 +169,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "..", "frontend", "build", "dist/", "static"),
 ]
 
-FRONTEND_BASE_URL = "https://csacademy.pythonanywhere.com/"
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+FRONTEND_URL = 'http://localhost:5173'  # or your production URL
+PAYSTACK_CALLBACK_URL = f'{FRONTEND_URL}/payment-callback'
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
