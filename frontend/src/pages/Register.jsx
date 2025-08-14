@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axiosInstance from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -6,6 +6,9 @@ import Hero from "../components/Hero";
 import ScrollAll from "../helpers/scroll";
 import Cropper from "react-easy-crop";
 import { endpoints } from "../api/endpoints";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -23,6 +26,7 @@ const Register = () => {
     interested_course: "",
     device: "",
     gender: "",
+    ghana_card_number: "",
     image: null,
   });
 
@@ -34,6 +38,8 @@ const Register = () => {
   const [imageError, setImageError] = useState("");
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef();
+  const [startDate, setStartDate] = useState(null);
+
 
   const getCroppedImg = async () => {
     const image = new Image();
@@ -97,6 +103,8 @@ const Register = () => {
       newErrors.phone_number = "Phone number is required";
     if (!formData.emergency_contact.trim())
       newErrors.emergency_contact = "Emergency contact is required";
+    if (!formData.ghana_card_number.trim())
+      newErrors.ghana_card_number = "Ghana card number is required";
     if (!formData.date_of_birth)
       newErrors.date_of_birth = "Date of birth is required";
     if (!formData.address.trim()) newErrors.address = "Address is required";
@@ -114,32 +122,59 @@ const Register = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    // Compress and store image
     let blob = await getCroppedImg();
     const compressedFile = new File([blob], "avatar.jpg", {
       type: "image/jpeg",
     });
+
+    // Submit form with image
     const payload = new FormData();
-    Object.entries({ ...formData, image: compressedFile }).forEach(([k, v]) =>
-      payload.append(k, v)
-    );
+    Object.entries(formData).forEach(([k, v]) => {
+      payload.append(k, v);
+    });
+    payload.append("image", compressedFile);
 
     try {
       const res = await axiosInstance.post(
         endpoints.registration.submit,
         payload,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (e) => setProgress((e.loaded / e.total) * 100),
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-      alert("Registration successful!");
+      window.location.href = res.data.payment_url;
     } catch (error) {
-      console.error(error);
-      alert("Registration failed.");
-    } finally {
-      setProgress(0);
+      console.error("Registration submission failed:", error);
+      alert("Registration submission failed. Please try again.");
     }
-  };    
+  };
+
+  // Handle payment callback
+  useEffect(() => {
+    const verifyPayment = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const reference = params.get("reference");
+
+      if (reference) {
+        try {
+          const verification = await axiosInstance.get(
+            `${endpoints.registration.verify}?reference=${reference}`
+          );
+
+          if (
+            verification.data.message === "Registration completed successfully!"
+          ) {
+            alert("Registration completed successfully!");
+            window.location.href = "/success";
+          }
+        } catch (error) {
+          console.error("Payment verification failed:", error);
+          alert("Payment verification failed. Please contact support.");
+        }
+      }
+    };
+
+    verifyPayment();
+  }, []);
 
   return (
     <div>
@@ -188,16 +223,23 @@ const Register = () => {
           {errors.emergency_contact && (
             <p className="text-red-500 text-sm">{errors.emergency_contact}</p>
           )}
-
-          <input
-            name="date_of_birth"
-            type="date"
-            onChange={handleChange}
-            className="w-full border px-4 py-2 rounded"
-          />
-          {errors.date_of_birth && (
-            <p className="text-red-500 text-sm">{errors.date_of_birth}</p>
-          )}
+          
+ <div className="relative">
+  <input
+    name="date_of_birth"
+    type="date"
+    onChange={handleChange}
+    className="w-full border px-4 py-2 rounded text-gray-400"
+  />
+  {!formData.date_of_birth && (
+    <span className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
+      Date of Birth
+    </span>
+  )}
+  {errors.date_of_birth && (
+    <p className="text-red-500 text-sm">{errors.date_of_birth}</p>
+  )}
+</div>
 
           <input
             name="address"
@@ -207,6 +249,18 @@ const Register = () => {
           />
           {errors.address && (
             <p className="text-red-500 text-sm">{errors.address}</p>
+          )}
+
+          <input
+            name="ghana_card_number"
+            placeholder="Ghana Card Number (GHA-XXXXXXXX-X)"
+            onChange={handleChange}
+            className="w-full border px-4 py-2 rounded"
+            pattern="GHA-[0-9]{9}-[0-9]" // Optional: adds basic pattern validation
+            title="Format: GHA-XXXXXXXXX-X" // Optional: shows hint when pattern doesn't match
+          />
+          {errors.ghana_card_number && (
+            <p className="text-red-500 text-sm">{errors.ghana_card_number}</p>
           )}
 
           <select
@@ -246,36 +300,40 @@ const Register = () => {
             <p className="text-red-500 text-sm">{errors.gender}</p>
           )}
           {/* DESKTOP Drag & Drop */}
-<div
-  className="w-full border-2 border-dashed p-4 rounded text-center hover:border-blue-600 cursor-pointer hidden lg:block"
-  onClick={() => fileInputRef.current.click()}
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={(e) => {
-    e.preventDefault();
-    handleImageDrop(e.dataTransfer.files[0]);
-  }}
->
-  <input
-    hidden
-    ref={fileInputRef}
-    type="file"
-    accept="image/*"
-    onChange={(e) => handleImageDrop(e.target.files[0])}
-  />
-  <p className="text-gray-500">Drag & drop or click to upload passport photo</p>
-</div>
+          <div
+            className="w-full border-2 border-dashed p-4 rounded text-center hover:border-blue-600 cursor-pointer hidden lg:block"
+            onClick={() => fileInputRef.current.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              handleImageDrop(e.dataTransfer.files[0]);
+            }}
+          >
+            <input
+              hidden
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageDrop(e.target.files[0])}
+            />
+            <p className="text-gray-500">
+              Drag & drop or click to upload passport photo
+            </p>
+          </div>
 
-{/* MOBILE-Friendly File Input */}
-<div className="lg:hidden">
-  <label className="block text-sm font-medium text-gray-700 mb-1">Upload Passport Photo</label>
-  <input
-    type="file"
-    name="image"
-    accept="image/*"
-    onChange={(e) => handleImageDrop(e.target.files[0])}
-    className="w-full border px-4 py-2 rounded"
-  />
-</div>
+          {/* MOBILE-Friendly File Input */}
+          <div className="lg:hidden">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Upload Passport Photo
+            </label>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={(e) => handleImageDrop(e.target.files[0])}
+              className="w-full border px-4 py-2 rounded"
+            />
+          </div>
 
           {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
           {errors.image && (

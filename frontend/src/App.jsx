@@ -6,6 +6,9 @@ import DonatePage from './pages/DonationPage'
 import Register from './pages/Register'
 import { routes } from './helpers/routes'
 import MembersList from "./pages/MembersList";
+import PaymentCallback from './pages/PaymentCallback';
+import RegistrationSuccess from './pages/RegistrationSuccess';
+import RegistrationFailed from './pages/RegistrationFailed';
 
 
 
@@ -16,11 +19,16 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path={routes[0].path} element={<HomePage />}></Route>
-        <Route path={routes[5].path} element={<TeamMemberDetail />} />
-        <Route path={routes[6].path} element={<Register />} />
-        <Route path={routes[7].path} element={<DonatePage />} />
-        <Route path="/members" element={<MembersList />} />
+        <Route path={routes[0].path} element={<Register />}></Route>
+        <Route path={routes[1].path} element={<MembersList />}></Route>
+        {/* <Route path={routes[0].path} element={<HomePage />}></Route> */}
+        {/* <Route path={routes[5].path} element={<TeamMemberDetail />} /> */}
+        {/* <Route path={routes[6].path} element={<Register />} /> */}
+        {/* <Route path={routes[7].path} element={<DonatePage />} /> */}
+        {/* <Route path="/members" element={<MembersList />} /> */}
+        <Route path="/payment-callback" element={<PaymentCallback />} />
+        <Route path="/registration-success" element={<RegistrationSuccess />} />
+        <Route path="/registration-failed" element={<RegistrationFailed />} />
 
 
       </Routes>

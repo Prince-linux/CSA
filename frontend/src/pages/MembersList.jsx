@@ -11,50 +11,61 @@ import Hero from "../components/Hero";
 const MembersList = () => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [expandedCardId, setExpandedCardId] = useState(null); // ✅ Only one open at a time
+  const [expandedCardId, setExpandedCardId] = useState(null); 
 
   useEffect(() => {
-    fetcher(endpoints.registration.get)
-      .then((data) => {
-        setMembers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    const fetchMembers = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(endpoints.registration.get);
+        
+        // Ensure response.data is an array
+        const membersData = Array.isArray(response.data) ? response.data : [];
+        setMembers(membersData);
+        setError(null);
+      } catch (err) {
         console.error("Error fetching members:", err);
+        setError("Failed to load members. Please try again.");
+        setMembers([]);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchMembers();
   }, []);
 
   const toggleExpanded = (id) => {
     setExpandedCardId((prev) => (prev === id ? null : id));
   };
 
-  useEffect(() => {
-    fetcher(endpoints.registration.get)
-      .then((data) => {
-        setMembers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching members:", err);
-        setLoading(false);
-      });
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-center">Loading members...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-center text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      {/* <Navbar /> */}
       <Hero />
-
       <div className="max-w-6xl mx-auto px-4 py-10 mb-70">
         <h2 className="text-2xl font-bold mb-6 text-center">
           Registered Members
         </h2>
 
-        {loading ? (
-          <p className="text-center">Loading...</p>
-        ) : members.length === 0 ? (
+        {members.length === 0 ? (
           <p className="text-center text-gray-500">
             No members registered yet.
           </p>
@@ -75,6 +86,7 @@ const MembersList = () => {
                     <th className="p-2 border">Course</th>
                     <th className="p-2 border">Device</th>
                     <th className="p-2 border">Gender</th>
+                    <th className="p-2 border">Ghana Card Number</th>
                     <th className="p-2 border">Registered On</th>
                   </tr>
                 </thead>
@@ -103,11 +115,14 @@ const MembersList = () => {
                       <td className="p-2 border">{member.email}</td>
                       <td className="p-2 border">{member.phone_number}</td>
                       <td className="p-2 border">{member.emergency_contact}</td>
-                      <td className="p-2 border">{member.date_of_birth}</td>
+                      <td className="p-2 border">
+                        {new Date(member.date_of_birth).toLocaleDateString()}
+                      </td>
                       <td className="p-2 border">{member.address}</td>
                       <td className="p-2 border">{member.interested_course}</td>
                       <td className="p-2 border">{member.device}</td>
                       <td className="p-2 border">{member.gender}</td>
+                      <td className="p-2 border">{member.ghana_card_number}</td>
                       <td className="p-2 border">
                         {new Date(member.created_at).toLocaleDateString()}
                       </td>
@@ -116,6 +131,8 @@ const MembersList = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Cards */}
             <div className="md:hidden flex flex-col gap-6">
               {members.map((member) => {
                 const isExpanded = expandedCardId === member.id;
@@ -194,7 +211,7 @@ const MembersList = () => {
                               <span className="font-semibold text-gray-600">
                                 Date of Birth:
                               </span>{" "}
-                              {member.date_of_birth}
+                              {new Date(member.date_of_birth).toLocaleDateString()}
                             </p>
                             <p>
                               <span className="font-semibold text-gray-600">
@@ -222,6 +239,12 @@ const MembersList = () => {
                             </p>
                             <p>
                               <span className="font-semibold text-gray-600">
+                                Ghana Card Number:
+                              </span>{" "}
+                              {member.ghana_card_number}
+                            </p>
+                            <p>
+                              <span className="font-semibold text-gray-600">
                                 Registered:
                               </span>{" "}
                               {new Date(member.created_at).toLocaleDateString()}
@@ -237,6 +260,8 @@ const MembersList = () => {
           </>
         )}
       </div>
+
+      {/* Image modal */}
       {selectedImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
@@ -244,7 +269,7 @@ const MembersList = () => {
         >
           <div
             className="relative bg-white p-4 rounded shadow-xl max-w-3xl max-h-[90vh] overflow-auto"
-            onClick={(e) => e.stopPropagation()} // prevent modal from closing on image click
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedImage(null)}
