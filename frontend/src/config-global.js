@@ -10,7 +10,7 @@ export const CONFIG = {
   auth: {
     method: 'jwt',
     skip: false,
-    redirectPath: '/gcap/usata/register', // ✅ Replace with any actual path
+    redirectPath: '/', // ✅ Replace with any actual path
   },
 
   mapboxApiKey: import.meta.env.VITE_MAPBOX_API_KEY ?? '',
