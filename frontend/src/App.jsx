@@ -19,8 +19,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path={routes[0].path} element={<Register />}></Route>
-        <Route path={routes[1].path} element={<MembersList />}></Route>
+        <Route path="/" element={<Register />} />
+        <Route path="/members" element={<MembersList />} />
         {/* <Route path={routes[0].path} element={<HomePage />}></Route>
         <Route path={routes[5].path} element={<TeamMemberDetail />} />
         <Route path={routes[6].path} element={<Register />} />
